@@ -1,9 +1,8 @@
 function fish_greeting -d "Greeting message on shell session start up"
   set_color $fish_color_autosuggestion[1]
-  echo -en (welcome_message) "\n"
   echo -en (show_date_info) "\n"
   echo -en "\n"
-  echo -en "Current machine:\n"
+  echo -en "Current Machine:\n"
   echo -en (show_os_info) "\n"
   echo -en (show_cpu_info) "\n"
   echo -en (show_mem_info) "\n"
@@ -28,6 +27,7 @@ function show_date_info -d "Prints information about date"
 
   switch $time
   case "days"
+  case "day"
     set formatted_uptime "$up_time"
   case "min"
     set formatted_uptime $up_time"utes"
@@ -35,9 +35,10 @@ function show_date_info -d "Prints information about date"
     set formatted_uptime "$formatted_uptime hours"
   end
 
+  set_color normal
   echo -en "Today is the "
   set_color cyan
-  echo -en (date "+%d.%m %Y")
+  echo -en (date "+%F")
   set_color normal
   echo -en ", we are up and running for "
   set_color cyan
@@ -50,9 +51,9 @@ end
 function show_os_info -d "Prints operating system info"
 
   set_color yellow
-  echo -en "OS: "
+  echo -en "OS:  "
   set_color 0F0  # green
-  echo -en (uname -sm)
+  echo -en (lsb_release -d | cut -f2)
   set_color normal
 end
 
@@ -98,7 +99,7 @@ function show_mem_info -d "Prints memory information"
   end
 
   set_color yellow
-  echo -en "Memory: "
+  echo -en "Mem: "
   set_color 0F0  # green
   echo -en $total_memory
   set_color normal
@@ -112,7 +113,7 @@ function show_net_info -d "Prints information about network"
   set --local gw ""
 
   if [ "$os_type" = "Linux" ]
-    set ip (ip address show | grep -E "inet .* brd .* dynamic" | cut -d " " -f6)
+    set ip (ip address show | grep -E "inet .* global" | xargs | cut -d " " -f2)
     set gw (ip route | grep default | cut -d " " -f3)
 
   else if [ "$os_type" = "Darwin" ]
@@ -123,6 +124,6 @@ function show_net_info -d "Prints information about network"
   set_color yellow
   echo -en "Net: "
   set_color 0F0  # green
-  echo -en "IP $ip; gateway $gw"
+  echo -en "IPv4 $ip; Gateway $gw"
   set_color normal
 end
