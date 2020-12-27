@@ -49,11 +49,20 @@ end
 
 
 function show_os_info -d "Prints operating system info"
+  set --local os_type (uname -s)
+  set --local os_info ""
+
+  if [ "$os_type" = "Linux" ]
+    set os_info (lsb_release -d | cut -f2)
+  else if [ "$os_type" = "Darwin" ]
+    set --local os_version (sw_vers -productVersion)
+    set os_info "macOS $os_version"
+  end
 
   set_color yellow
   echo -en "OS:  "
   set_color 0F0  # green
-  echo -en (lsb_release -d | cut -f2)
+  echo -en $os_info
   set_color normal
 end
 
